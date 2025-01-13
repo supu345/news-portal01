@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import axios from "axios";
+import { base_url } from "../../config/config";
+import storeContext from "../../context/storeContext";
 
 const Writers = () => {
+  const { store } = useContext(storeContext);
+  const [writers, setWriters] = useState([]);
+
+  const get_writers = async () => {
+    try {
+      const { data } = await axios.get(`${base_url}/api/news/writers`, {
+        headers: {
+          Authorization: `Bearer ${store.token}`,
+        },
+      });
+      setWriters(data.writers);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    get_writers();
+  }, []);
   return (
     <div className="bg-white rounded-md">
       <div className="flex justify-between p-4">
@@ -28,12 +50,12 @@ const Writers = () => {
             </tr>
           </thead>
           <tbody>
-            {[1, 2, 3, 4].map((r, i) => (
+            {writers.map((r, i) => (
               <tr key={i} className="bg-white border-b">
                 <td className="px-6 py-4">{i + 1}</td>
-                <td className="px-6 py-4">Fahim</td>
-                <td className="px-6 py-4">travel</td>
-                <td className="px-6 py-4">sales</td>
+                <td className="px-6 py-4">{r.name}</td>
+                <td className="px-6 py-4">{r.category}</td>
+                <td className="px-6 py-4">{r.role}</td>
                 <td className="px-6 py-4">
                   <img
                     className="w-[40px] h-[40px]"
@@ -41,7 +63,7 @@ const Writers = () => {
                     alt=""
                   />
                 </td>
-                <td className="px-6 py-4">email.com</td>
+                <td className="px-6 py-4">{r.email}</td>
                 <td className="px-6 py-4">
                   <div className="flex justify-start items-center gap-x-4 text-white">
                     <Link

@@ -1,7 +1,50 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { base_url } from "../../config/config";
+import storeContext from "../../context/storeContext";
 
 const AddWriter = () => {
+  const navigate = useNavigate();
+  const { store } = useContext(storeContext);
+
+  const [state, setState] = useState({
+    name: "",
+    email: "",
+    password: "",
+    category: "",
+  });
+  const inputHandler = (e) => {
+    setState({
+      ...state,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const [loader, setLoader] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoader(true);
+      const { data } = await axios.post(
+        `${base_url}/api/news/writer/add`,
+        state,
+        {
+          headers: {
+            Authorization: `Bearer ${store.token}`,
+          },
+        }
+      );
+      setLoader(false);
+      toast.success(data.message);
+      navigate("/dashboard/writers");
+    } catch (error) {
+      setLoader(false);
+      toast.error(error.response.data.message);
+    }
+  };
+
   return (
     <div className="bg-white rounded-md">
       <div className="flex justify-between p-4">
@@ -14,7 +57,7 @@ const AddWriter = () => {
         </Link>
       </div>
       <div className="p-4">
-        <form>
+        <form onSubmit={submit}>
           <div className="grid grid-cols-2 gap-x-8 mb-3">
             <div className="flex flex-col gap-y-2">
               <label
@@ -24,8 +67,8 @@ const AddWriter = () => {
                 Name
               </label>
               <input
-                // onChange={inputHandler}
-                // value={state.name}
+                onChange={inputHandler}
+                value={state.name}
                 required
                 type="text"
                 placeholder="name"
@@ -42,8 +85,8 @@ const AddWriter = () => {
                 Category
               </label>
               <select
-                // onChange={inputHandler}
-                // value={state.category}
+                onChange={inputHandler}
+                value={state.category}
                 required
                 name="category"
                 id="category"
@@ -68,8 +111,8 @@ const AddWriter = () => {
                 Email
               </label>
               <input
-                // onChange={inputHandler}
-                // value={state.email}
+                onChange={inputHandler}
+                value={state.email}
                 required
                 type="email"
                 placeholder="email"
@@ -87,8 +130,8 @@ const AddWriter = () => {
                   Password
                 </label>
                 <input
-                  // onChange={inputHandler}
-                  //value={state.password}
+                  onChange={inputHandler}
+                  value={state.password}
                   required
                   type="password"
                   placeholder="password"
@@ -101,11 +144,10 @@ const AddWriter = () => {
           </div>
           <div className="mt-4">
             <button
-              //disabled={loader}
+              disabled={loader}
               className="px-3 py-[6px] bg-purple-500 rounded-sm text-white hover:bg-purple-600"
             >
-              Add Writer
-              {/* {loader ? "Loading..." : "Add Writer"} */}
+              {loader ? "Loading..." : "Add Writer"}
             </button>
           </div>
         </form>

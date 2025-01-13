@@ -22,7 +22,7 @@ if (process.env.mode === "production") {
 app.use("/", require("./routes/authRoutes"));
 // app.use("/", require("./routes/newsRoute"));
 app.get("/", (req, res) => res.send("Hello World!"));
-
+app.use("/", require("./routes/newsRoute"));
 const port = process.env.port;
 
 db_connect();
